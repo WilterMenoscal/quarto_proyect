@@ -1,0 +1,11 @@
+{
+  "viz.qmd": {
+    "viz.html": "3e865832"
+  },
+  "index.qmd": {
+    "index.html": "cd7d947b"
+  },
+  "./viz.qmd": {
+    "viz.html": "a34c68d6"
+  }
+}

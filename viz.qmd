@@ -1,0 +1,28 @@
+---
+title: "Mi primera visualización"
+---
+
+# Dataset
+
+Vamos a cargar el dataset desde 'vega_datasets':
+```{python}
+import altair as alt
+from vega_datasets import data
+```
+Vamos a usar el dataset de 'cars'
+
+```{python}
+cars = data.cars()
+cars.head()
+``` 
+
+## Visalizacion Scatter Plot
+
+La visualizacion de tipo scatterplot necesita 2 atributos numericos continuos
+
+```{python}
+alt.Chart(cars).mark_circle().encode(
+    x='Horsepower',
+    y='Miles_per_Gallon'
+).interactive()
+```
