@@ -1,28 +1,171 @@
 ---
-title: "Mi primera visualización"
+title: "Actividad en Clase 2"
 ---
 
+## Integrantes del grupo:
+- Stadyn Roman
+- Wilter Menoscal
+
+# Objetivo
+
+*Desarrollar la capacidad de seleccionar el tipo adecuado de gráfico para responder preguntas sobre datos categóricos y cuantitativos.*
+
 # Dataset
-
-Vamos a cargar el dataset desde 'vega_datasets':
+## Cargar dataset desde un csv github
 ```{python}
+import pandas as pd
 import altair as alt
-from vega_datasets import data
+df = pd.read_csv('https://raw.githubusercontent.com/erickedu85/dataset/master/penguins.csv')
+print(df.head())
 ```
-Vamos a usar el dataset de 'cars'
+
+# Pregunta 1 – Distribución por grupo
+
+- Cómo varía la masa corporal (body_mass_g) entre las diferentes especies y islas de los pingüinos?
+
+Los pingünos Gentoo son los más pesados de todos, mientras que las otras 2 especies tienen persos bastante similares
+
+- ¿Qué tipo de gráfico usarías para comparar la distribución de una variable cuantitativa entre varios grupos definidos por dos variables categóricas?
+
+Un boxplot agrupado, que permite examinar la distribución de todos los valores de una variable, dentro de cada valor de otra. De esta forma, se examinan las distribuciones de las combinaciones de especies e islas.
+
+- ¿Cómo facilitarías la comparación entre subgrupos sin sobrecargar un solo gráfico?
+
+Usando un grid, con cada subplot del grid siendo el gráfico de boxplot de uno de los valores de una de las variables.
+
+Implementa tu elección y analiza visualmente qué patrones se observan.
+
+Los pingüinos Gentoo son los más pesados con diferencia, además de que solo viven en una isla, las Briscoe. Además, los Adelie son la especia más adaptativa, ya que está presente en las 3 islas, con pesos similares entre sí, aunque la mediana de los de la isla Dream es más baja. En cuanto a los Chinstrap, su distribución es bastante consistente, con una caja compacta, pero tienen 2 outliers particulares, uno de peso muy alto, y otro muy bajo
+```{python}
+q1 = df.dropna(subset=["body_mass_g", "species", "island"]).copy()
+
+grafico_p1 = (
+    alt.Chart(q1).mark_boxplot().encode(
+        alt.X('species'),
+        alt.Y('body_mass_g'),
+        color = 'island',
+        xOffset = 'island'
+    ).properties(
+        width=700,
+        height=400
+    )
+)
+
+grafico_p1
+```
+
+# Pregunta 2 – Ubicación de especies
+
+- ¿Qué especies de pingüinos se encuentran en cada isla? ¿Alguna especie está presente solo en una isla?
+
+En Biscoe se encuentran las especies Adelie y Gentoo.
+En Dream se encuentran Adelie y Chinstrap.
+En Torgersen se encuentra únicamente Adelie.
+
+- ¿Qué técnica visual te permitiría mostrar esta relación de forma compacta y clara?
+Aplica una visualización que permita identificar asociaciones entre categorías.
+Interpreta el resultado.
+
+La técnica visual más adecuada es un mapa de calor (heatmap), porque permite representar de manera compacta la relación entre dos variables categóricas, en este caso isla y especie, usando el color para indicar la cantidad de registros en cada combinación.
+
+Al aplicar esta visualización, se observa que:
+
+Adelie está presente en Biscoe, Dream y Torgersen.
+Chinstrap solo aparece en Dream.
+Gentoo solo aparece en Biscoe.
+
+Además, el mapa de calor muestra la intensidad de presencia de cada especie en cada isla. La combinación con más registros es Gentoo en Biscoe con 124 registros. Chinstrap en Dream tiene 68 registros. Adelie se distribuye entre las tres islas con 44 en Biscoe, 56 en Dream y 52 en Torgersen.
 
 ```{python}
-cars = data.cars()
-cars.head()
-``` 
+q2 = (
+    df.dropna(subset=["species", "island"])
+      .groupby(["island", "species"])
+      .size()
+      .reset_index(name="conteo")
+)
 
-## Visalizacion Scatter Plot
+heatmap_p2 = alt.Chart(q2).mark_rect().encode(
+    x=alt.X(
+        "species:N",
+        title="Especie",
+        axis=alt.Axis(labelAngle=0)
+    ),
+    y=alt.Y(
+        "island:N",
+        title="Isla"
+    ),
+    color=alt.Color(
+        "conteo:Q",
+        title="Número de registros"
+    ),
+    tooltip=["island:N", "species:N", "conteo:Q"]
+).properties(
+    title="Especies presentes en cada isla",
+    width=350,
+    height=220
+)
 
-La visualizacion de tipo scatterplot necesita 2 atributos numericos continuos
+texto_p2 = alt.Chart(q2).mark_text(baseline="middle").encode(
+    x=alt.X("species:N", axis=alt.Axis(labelAngle=0)),
+    y="island:N",
+    text="conteo:Q"
+)
+
+grafico_p2 = heatmap_p2 + texto_p2
+grafico_p2
+```
+
+# Pregunta 3 – Diferencias entre sexos
+- ¿Existen diferencias notables entre machos y hembras en alguna característica cuantitativa?
+
+* Elige una variable cuantitativa adecuada (como culmen_length_mm, culmen_depth_mm, etc.)
+* Justifica el gráfico que usarías para comparar distribuciones entre dos categorías.
+
+Sí, existen diferencias notables entre machos y hembras en una característica cuantitativa del conjunto de datos. Para este análisis se eligió la variable body_mass_g, ya que corresponde a una medida continua, fácil de interpretar y adecuada para identificar posibles diferencias corporales entre ambos sexos.
+
+Para comparar la distribución de esta variable entre machos y hembras, se utilizó un gráfico de violín. Esta elección es pertinente porque permite visualizar no solo una medida resumen de cada grupo, sino también la forma de la distribución, la densidad de los datos y el grado de solapamiento entre categorías. En comparación con otros gráficos más resumidos, como el boxplot, el gráfico de violín ofrece una representación más completa de cómo se distribuyen los valores dentro de cada sexo.
+
+A partir de la visualización obtenida, se aprecia que los machos tienden a concentrarse en valores más altos de masa corporal que las hembras, lo que sugiere una diferencia importante entre ambos grupos. Aunque existe cierto solapamiento en algunos rangos, la distribución de los machos se desplaza hacia valores superiores, indicando que, en general, presentan una mayor masa corporal.
+
+En conclusión, el análisis muestra que sí existen diferencias notables entre machos y hembras en la variable body_mass_g, y el uso del gráfico de violín resulta adecuado para evidenciar esta diferencia de manera clara y detallada.
 
 ```{python}
-alt.Chart(cars).mark_circle().encode(
-    x='Horsepower',
-    y='Miles_per_Gallon'
-).interactive()
+q3 = df.dropna(subset=["sex", "body_mass_g"]).copy()
+q3 = q3[q3["sex"].isin(["FEMALE", "MALE"])]
+
+violin = (
+    alt.Chart(q3)
+    .transform_density(
+        "body_mass_g",
+        as_=["body_mass_g", "density"],
+        groupby=["sex"]
+    )
+    .mark_area(orient="horizontal", opacity=0.6)
+    .encode(
+        y=alt.Y(
+            "body_mass_g:Q",
+            title="Masa corporal (g)"
+        ),
+        x=alt.X(
+            "density:Q",
+            stack="center",
+            title=None,
+            axis=None
+        ),
+        color=alt.Color("sex:N", title="Sexo"),
+        column=alt.Column(
+            "sex:N",
+            title="Sexo",
+            header=alt.Header(labelOrient="bottom", labelAngle=0)
+        ),
+        tooltip=["sex:N", "body_mass_g:Q", "density:Q"]
+    )
+    .properties(
+        title="Violin plot de body_mass_g por sexo",
+        width=140,
+        height=300
+    )
+)
+
+violin
 ```
