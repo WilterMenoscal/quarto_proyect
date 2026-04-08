@@ -202,7 +202,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1>Dataset</h1>
 <section id="cargar-dataset-desde-un-csv-github" class="level2">
 <h2 class="anchored" data-anchor-id="cargar-dataset-desde-un-csv-github">Cargar dataset desde un csv github</h2>
-<div id="8453728a" class="cell" data-execution_count="1">
+<div id="3c0c741c" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> altair <span class="im">as</span> alt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">'https://raw.githubusercontent.com/erickedu85/dataset/master/penguins.csv'</span>)</span>
@@ -230,7 +230,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ul>
 <li>Cómo varía la masa corporal (body_mass_g) entre las diferentes especies y islas de los pingüinos?</li>
 </ul>
-<p>Los pingünos Gentoo son los más pesados de todos, mientras que las otras 2 especies tienen persos bastante similares</p>
+<p>Los pingünos Gentoo son los más pesados de todos, mientras que las otras 2 especies tienen pesos bastante similares</p>
 <ul>
 <li>¿Qué tipo de gráfico usarías para comparar la distribución de una variable cuantitativa entre varios grupos definidos por dos variables categóricas?</li>
 </ul>
@@ -241,7 +241,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Usando un grid, con cada subplot del grid siendo el gráfico de boxplot de uno de los valores de una de las variables.</p>
 <p>Implementa tu elección y analiza visualmente qué patrones se observan.</p>
 <p>Los pingüinos Gentoo son los más pesados con diferencia, además de que solo viven en una isla, las Briscoe. Además, los Adelie son la especia más adaptativa, ya que está presente en las 3 islas, con pesos similares entre sí, aunque la mediana de los de la isla Dream es más baja. En cuanto a los Chinstrap, su distribución es bastante consistente, con una caja compacta, pero tienen 2 outliers particulares, uno de peso muy alto, y otro muy bajo</p>
-<div id="cb9f55c0" class="cell" data-execution_count="2">
+<div id="e3fcb0eb" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>q1 <span class="op">=</span> df.dropna(subset<span class="op">=</span>[<span class="st">"body_mass_g"</span>, <span class="st">"species"</span>, <span class="st">"island"</span>]).copy()</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>grafico_p1 <span class="op">=</span> (</span>
@@ -260,23 +260,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-display" data-execution_count="6">
 
 <style>
-  #altair-viz-12439872ea68407eb41a91b185c2feed.vega-embed {
+  #altair-viz-e31d903373914705bb6aa25977fa467b.vega-embed {
     width: 100%;
     display: flex;
   }
 
-  #altair-viz-12439872ea68407eb41a91b185c2feed.vega-embed details,
-  #altair-viz-12439872ea68407eb41a91b185c2feed.vega-embed details summary {
+  #altair-viz-e31d903373914705bb6aa25977fa467b.vega-embed details,
+  #altair-viz-e31d903373914705bb6aa25977fa467b.vega-embed details summary {
     position: relative;
   }
 </style>
-<div id="altair-viz-12439872ea68407eb41a91b185c2feed"></div>
+<div id="altair-viz-e31d903373914705bb6aa25977fa467b"></div>
 <script type="text/javascript">
   var VEGA_DEBUG = (typeof VEGA_DEBUG == "undefined") ? {} : VEGA_DEBUG;
   (function(spec, embedOpt){
     let outputDiv = document.currentScript.previousElementSibling;
-    if (outputDiv.id !== "altair-viz-12439872ea68407eb41a91b185c2feed") {
-      outputDiv = document.getElementById("altair-viz-12439872ea68407eb41a91b185c2feed");
+    if (outputDiv.id !== "altair-viz-e31d903373914705bb6aa25977fa467b") {
+      outputDiv = document.getElementById("altair-viz-e31d903373914705bb6aa25977fa467b");
     }
 
     const paths = {
@@ -342,7 +342,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Al aplicar esta visualización, se observa que:</p>
 <p>Adelie está presente en Biscoe, Dream y Torgersen. Chinstrap solo aparece en Dream. Gentoo solo aparece en Biscoe.</p>
 <p>Además, el mapa de calor muestra la intensidad de presencia de cada especie en cada isla. La combinación con más registros es Gentoo en Biscoe con 124 registros. Chinstrap en Dream tiene 68 registros. Adelie se distribuye entre las tres islas con 44 en Biscoe, 56 en Dream y 52 en Torgersen.</p>
-<div id="befc1822" class="cell" data-execution_count="3">
+<div id="d68767ca" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>q2 <span class="op">=</span> (</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    df.dropna(subset<span class="op">=</span>[<span class="st">"species"</span>, <span class="st">"island"</span>])</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>      .groupby([<span class="st">"island"</span>, <span class="st">"species"</span>])</span>
@@ -382,23 +382,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-display" data-execution_count="7">
 
 <style>
-  #altair-viz-bb7d770e9bb54442a29ab551945b1e7b.vega-embed {
+  #altair-viz-adf72df5054946a687afb8c383de7c47.vega-embed {
     width: 100%;
     display: flex;
   }
 
-  #altair-viz-bb7d770e9bb54442a29ab551945b1e7b.vega-embed details,
-  #altair-viz-bb7d770e9bb54442a29ab551945b1e7b.vega-embed details summary {
+  #altair-viz-adf72df5054946a687afb8c383de7c47.vega-embed details,
+  #altair-viz-adf72df5054946a687afb8c383de7c47.vega-embed details summary {
     position: relative;
   }
 </style>
-<div id="altair-viz-bb7d770e9bb54442a29ab551945b1e7b"></div>
+<div id="altair-viz-adf72df5054946a687afb8c383de7c47"></div>
 <script type="text/javascript">
   var VEGA_DEBUG = (typeof VEGA_DEBUG == "undefined") ? {} : VEGA_DEBUG;
   (function(spec, embedOpt){
     let outputDiv = document.currentScript.previousElementSibling;
-    if (outputDiv.id !== "altair-viz-bb7d770e9bb54442a29ab551945b1e7b") {
-      outputDiv = document.getElementById("altair-viz-bb7d770e9bb54442a29ab551945b1e7b");
+    if (outputDiv.id !== "altair-viz-adf72df5054946a687afb8c383de7c47") {
+      outputDiv = document.getElementById("altair-viz-adf72df5054946a687afb8c383de7c47");
     }
 
     const paths = {
@@ -462,7 +462,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Para comparar la distribución de esta variable entre machos y hembras, se utilizó un gráfico de violín. Esta elección es pertinente porque permite visualizar no solo una medida resumen de cada grupo, sino también la forma de la distribución, la densidad de los datos y el grado de solapamiento entre categorías. En comparación con otros gráficos más resumidos, como el boxplot, el gráfico de violín ofrece una representación más completa de cómo se distribuyen los valores dentro de cada sexo.</p>
 <p>A partir de la visualización obtenida, se aprecia que los machos tienden a concentrarse en valores más altos de masa corporal que las hembras, lo que sugiere una diferencia importante entre ambos grupos. Aunque existe cierto solapamiento en algunos rangos, la distribución de los machos se desplaza hacia valores superiores, indicando que, en general, presentan una mayor masa corporal.</p>
 <p>En conclusión, el análisis muestra que sí existen diferencias notables entre machos y hembras en la variable body_mass_g, y el uso del gráfico de violín resulta adecuado para evidenciar esta diferencia de manera clara y detallada.</p>
-<div id="97b9ddc0" class="cell" data-execution_count="4">
+<div id="4476224b" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>q3 <span class="op">=</span> df.dropna(subset<span class="op">=</span>[<span class="st">"sex"</span>, <span class="st">"body_mass_g"</span>]).copy()</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>q3 <span class="op">=</span> q3[q3[<span class="st">"sex"</span>].isin([<span class="st">"FEMALE"</span>, <span class="st">"MALE"</span>])]</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -504,23 +504,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-display" data-execution_count="8">
 
 <style>
-  #altair-viz-6df7a733f7da4210ae134f14e9f244c4.vega-embed {
+  #altair-viz-47ea58e3bc084b9685769be6b05d7c38.vega-embed {
     width: 100%;
     display: flex;
   }
 
-  #altair-viz-6df7a733f7da4210ae134f14e9f244c4.vega-embed details,
-  #altair-viz-6df7a733f7da4210ae134f14e9f244c4.vega-embed details summary {
+  #altair-viz-47ea58e3bc084b9685769be6b05d7c38.vega-embed details,
+  #altair-viz-47ea58e3bc084b9685769be6b05d7c38.vega-embed details summary {
     position: relative;
   }
 </style>
-<div id="altair-viz-6df7a733f7da4210ae134f14e9f244c4"></div>
+<div id="altair-viz-47ea58e3bc084b9685769be6b05d7c38"></div>
 <script type="text/javascript">
   var VEGA_DEBUG = (typeof VEGA_DEBUG == "undefined") ? {} : VEGA_DEBUG;
   (function(spec, embedOpt){
     let outputDiv = document.currentScript.previousElementSibling;
-    if (outputDiv.id !== "altair-viz-6df7a733f7da4210ae134f14e9f244c4") {
-      outputDiv = document.getElementById("altair-viz-6df7a733f7da4210ae134f14e9f244c4");
+    if (outputDiv.id !== "altair-viz-47ea58e3bc084b9685769be6b05d7c38") {
+      outputDiv = document.getElementById("altair-viz-47ea58e3bc084b9685769be6b05d7c38");
     }
 
     const paths = {
