@@ -169,17 +169,11 @@ alt.vconcat(
 )
 ```
 
-### Interpretación
 
 El gráfico muestra la evolución anual del monto total contratado mediante contratación directa en Ecuador. Se observa un valor muy alto en 2015, seguido de una caída marcada en 2016 y 2017. A partir de 2018, el monto se mantiene relativamente estable, con valores cercanos entre 50 y 65 millones de dólares.
 
 También se observa un incremento importante en 2022 y un nuevo pico en 2024. En cambio, el año 2025 presenta una caída considerable, pero este resultado debe interpretarse con cuidado porque corresponde a un año con información parcial.
 
-### ¿Cómo responde el gráfico a la pregunta?
-
-La visualización permite responder la pregunta porque muestra claramente cómo cambia el monto total contratado a lo largo del tiempo. Al usar una línea temporal, es posible identificar aumentos, caídas y periodos de estabilidad en la contratación directa.
-
-El gráfico cumple su propósito porque facilita comparar los años entre sí y reconocer patrones generales del gasto público bajo esta modalidad. Además, el uso de puntos sobre la línea ayuda a identificar cada año específico y permite destacar visualmente años particulares, como 2025, que no debe compararse de forma directa con años completos.
 
 ## Pregunta 2
 
@@ -255,7 +249,6 @@ chart_top_instituciones
 
 ```
 
-### Interpretación
 
 El gráfico muestra las 20 instituciones públicas con mayor monto acumulado en procesos de contratación directa durante el periodo analizado. Cada barra representa el monto total contratado por una institución, mientras que los segmentos de color muestran la contribución de cada año.
 
@@ -263,42 +256,137 @@ Se observa que algunas entidades concentran montos significativamente más altos
 
 Además, al estar desagregado por año, el gráfico permite identificar si el monto de una institución se acumuló de forma constante en el tiempo o si se concentró en años específicos.
 
-### ¿Cómo responde el gráfico a la pregunta?
-
-La visualización responde la pregunta porque ordena las instituciones según el monto total contratado, permitiendo identificar rápidamente cuáles concentran la mayor parte de la contratación directa.
-
-El uso de barras horizontales facilita comparar instituciones con nombres largos, mientras que la segmentación por año añade una segunda capa de análisis: no solo muestra cuánto contrató cada institución, sino también cuándo se concentraron esos montos.
-
-Por esta razón, el gráfico cumple su propósito al mostrar tanto la concentración institucional como la evolución temporal del monto contratado dentro de cada entidad.
 
 ## Pregunta 3
 
 - ¿Cuál es la distribución de los montos de contratación directa en el periodo analizado?
 
 ```{python}
-chart_dist = alt.Chart(df).mark_bar().encode(
-    x=alt.X(
-        "value_amount:Q",
-        bin=alt.Bin(maxbins=40),
-        title="Monto de contratación (USD)"
-    ),
-    y=alt.Y("count()", title="Número de procesos"),
-    color=alt.Color(
-        "count():Q",
-        scale=alt.Scale(scheme="blues"),
-        legend=None 
-    ),
-    tooltip=[alt.Tooltip("count()", title="Número de procesos")]
-).properties(
-    title="Distribución de montos de contratación directa",
-    width=750,
-    height=400
+# Asegurar formato fecha
+df["fecha"] = pd.to_datetime(df["fecha"], errors="coerce")
+
+# Crear año como texto para el selector "Todos"
+df["year_label"] = df["year"].astype(str)
+
+# Selector de año
+anio_selector = alt.param(
+    name="anio_selector",
+    value="Todos",
+    bind=alt.binding_select(
+        options=["Todos"] + sorted(df["year_label"].unique().tolist()),
+        name="Seleccionar año: "
+    )
 )
 
-chart_dist
-```
+# Selección por barra del histograma
+seleccion_bin = alt.selection_point(
+    name="seleccion_bin",
+    fields=["bin_start", "bin_end"],
+    on="click",
+    empty="none"
+)
 
-### Interpretación
+# =========================
+# 1. HISTOGRAMA INTERACTIVO
+# =========================
+hist_base = alt.Chart(df).transform_filter(
+    "(anio_selector == 'Todos') || (datum.year_label == anio_selector)"
+).transform_bin(
+    as_=["bin_start", "bin_end"],
+    field="value_amount",
+    bin=alt.Bin(maxbins=40)
+)
+
+chart_dist = hist_base.mark_bar().encode(
+    x=alt.X(
+        "bin_start:Q",
+        bin="binned",
+        title="Monto de contratación (USD)"
+    ),
+    x2="bin_end:Q",
+    y=alt.Y(
+        "count():Q",
+        title="Número de procesos"
+    ),
+    color=alt.condition(
+        seleccion_bin,
+        alt.value("#1f77b4"),
+        alt.Color(
+            "count():Q",
+            scale=alt.Scale(scheme="blues"),
+            legend=None
+        )
+    ),
+    tooltip=[
+        alt.Tooltip("bin_start:Q", title="Desde", format=",.2f"),
+        alt.Tooltip("bin_end:Q", title="Hasta", format=",.2f"),
+        alt.Tooltip("count():Q", title="Número de procesos")
+    ]
+).add_params(
+    anio_selector,
+    seleccion_bin
+).properties(
+    title="Distribución de montos de contratación directa",
+    width=850,
+    height=350
+)
+
+# ======================================
+# 2A. SEGUNDO GRÁFICO: SOLO BARRA SELECCIONADA
+# ======================================
+timeline_base_seleccionado = alt.Chart(df).transform_filter(
+    "(anio_selector == 'Todos') || (datum.year_label == anio_selector)"
+).transform_bin(
+    as_=["bin_start", "bin_end"],
+    field="value_amount",
+    bin=alt.Bin(maxbins=40)
+).transform_filter(
+    seleccion_bin
+)
+chart_timeline_seleccionado = timeline_base_seleccionado.mark_circle(
+    size=70,
+    opacity=0.75
+).encode(
+    x=alt.X(
+        "fecha:T",
+        title="Fecha del proceso"
+    ),
+    y=alt.Y(
+        "value_amount:Q",
+        title="Monto de contratación (USD)",
+        axis=alt.Axis(format="~s")
+    ),
+    color=alt.Color(
+        "value_amount:Q",
+        scale=alt.Scale(scheme="blues"),
+        title="Monto"
+    ),
+    tooltip=[
+        alt.Tooltip("fecha:T", title="Fecha"),
+        alt.Tooltip("year_label:N", title="Año"),
+        alt.Tooltip("procuringEntity_name:N", title="Institución"),
+        alt.Tooltip("value_amount:Q", title="Monto", format=",.2f"),
+        alt.Tooltip("status:N", title="Estado"),
+        alt.Tooltip("procurementMethodDetails:N", title="Tipo")
+    ]
+)
+
+# Unimos ambos comportamientos en un solo segundo gráfico
+chart_timeline = (chart_timeline_seleccionado).properties(
+    title="Procesos según fecha y monto contratado",
+    width=850,
+    height=350
+)
+
+# =========================
+# VISUALIZACIÓN FINAL
+# =========================
+alt.vconcat(
+    chart_dist,
+    chart_timeline,
+    spacing=30
+)
+```
 
 El histograma muestra la distribución de los montos registrados en los procesos de contratación directa. Se observa que la mayor cantidad de procesos se concentra en montos bajos, especialmente en los primeros rangos del eje horizontal.
 
@@ -306,10 +394,3 @@ A medida que aumenta el monto contratado, el número de procesos disminuye progr
 
 La distribución presenta una asimetría hacia la derecha, característica de datos económicos: muchos procesos tienen montos relativamente bajos y pocos procesos alcanzan valores altos.
 
-### ¿Cómo responde el gráfico a la pregunta?
-
-El gráfico responde la pregunta porque permite observar la forma en que se distribuyen los montos de contratación directa durante el periodo analizado.
-
-Al agrupar los procesos por rangos de monto, el histograma muestra que la contratación directa se concentra principalmente en valores bajos y medios, mientras que los montos altos aparecen con menor frecuencia.
-
-Esta visualización cumple su propósito porque facilita identificar patrones generales en la estructura de los montos contratados, sin necesidad de revisar cada proceso individualmente.
