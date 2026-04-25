@@ -264,16 +264,16 @@ Además, al estar desagregado por año, el gráfico permite identificar si el mo
 ```{python}
 # Asegurar formato fecha
 df["fecha"] = pd.to_datetime(df["fecha"], errors="coerce")
+df["year"] = df["year"].astype(int)
 
-# Crear año como texto para el selector "Todos"
-df["year_label"] = df["year"].astype(str)
-
-# Selector de año
-anio_selector = alt.param(
-    name="anio_selector",
-    value="Todos",
-    bind=alt.binding_select(
-        options=["Todos"] + sorted(df["year_label"].unique().tolist()),
+# Slider de año
+anio_slider_p3 = alt.param(
+    name="anio_slider_p3",
+    value=int(df["year"].min()),
+    bind=alt.binding_range(
+        min=int(df["year"].min()),
+        max=int(df["year"].max()),
+        step=1,
         name="Seleccionar año: "
     )
 )
@@ -286,11 +286,9 @@ seleccion_bin = alt.selection_point(
     empty="none"
 )
 
-# =========================
 # 1. HISTOGRAMA INTERACTIVO
-# =========================
 hist_base = alt.Chart(df).transform_filter(
-    "(anio_selector == 'Todos') || (datum.year_label == anio_selector)"
+    "datum.year == anio_slider_p3"
 ).transform_bin(
     as_=["bin_start", "bin_end"],
     field="value_amount",
@@ -323,19 +321,17 @@ chart_dist = hist_base.mark_bar().encode(
         alt.Tooltip("count():Q", title="Número de procesos")
     ]
 ).add_params(
-    anio_selector,
+    anio_slider_p3,
     seleccion_bin
 ).properties(
-    title="Distribución de montos de contratación directa",
+    title="Distribución de montos de contratación directa por año",
     width=850,
     height=350
 )
 
-# ======================================
-# 2A. SEGUNDO GRÁFICO: SOLO BARRA SELECCIONADA
-# ======================================
+# 2. PROCESOS DEL RANGO SELECCIONADO
 timeline_base_seleccionado = alt.Chart(df).transform_filter(
-    "(anio_selector == 'Todos') || (datum.year_label == anio_selector)"
+    "datum.year == anio_slider_p3"
 ).transform_bin(
     as_=["bin_start", "bin_end"],
     field="value_amount",
@@ -343,7 +339,8 @@ timeline_base_seleccionado = alt.Chart(df).transform_filter(
 ).transform_filter(
     seleccion_bin
 )
-chart_timeline_seleccionado = timeline_base_seleccionado.mark_circle(
+
+chart_timeline = timeline_base_seleccionado.mark_circle(
     size=70,
     opacity=0.75
 ).encode(
@@ -363,24 +360,19 @@ chart_timeline_seleccionado = timeline_base_seleccionado.mark_circle(
     ),
     tooltip=[
         alt.Tooltip("fecha:T", title="Fecha"),
-        alt.Tooltip("year_label:N", title="Año"),
+        alt.Tooltip("year:O", title="Año"),
         alt.Tooltip("procuringEntity_name:N", title="Institución"),
         alt.Tooltip("value_amount:Q", title="Monto", format=",.2f"),
         alt.Tooltip("status:N", title="Estado"),
         alt.Tooltip("procurementMethodDetails:N", title="Tipo")
     ]
-)
-
-# Unimos ambos comportamientos en un solo segundo gráfico
-chart_timeline = (chart_timeline_seleccionado).properties(
-    title="Procesos según fecha y monto contratado",
+).properties(
+    title="Procesos seleccionados según fecha y monto contratado",
     width=850,
     height=350
 )
 
-# =========================
-# VISUALIZACIÓN FINAL
-# =========================
+
 alt.vconcat(
     chart_dist,
     chart_timeline,
