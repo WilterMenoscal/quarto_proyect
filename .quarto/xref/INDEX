@@ -1,11 +1,11 @@
 {
-  "viz.qmd": {
-    "viz.html": "3e865832"
-  },
   "index.qmd": {
-    "index.html": "cd7d947b"
+    "index.html": "8ac618de"
   },
-  "./viz.qmd": {
-    "viz.html": "a34c68d6"
+  "data_cleaning.qmd": {
+    "data_cleaning.html": "58d3e7ec"
+  },
+  "visualizations.qmd": {
+    "visualizations.html": "cd3b630c"
   }
 }

@@ -3,13 +3,15 @@ project:
   output-dir: docs
 
 website:
-  title: "My Quarto Project"
+  title: "Final Project"
   navbar:
     left:
       - href: index.qmd
         text: Home
-      - href: viz.qmd
-        text: Visualizacion
+      - href: data_cleaning.qmd
+        text: Limpieza y preparación de los datos
+      - href: visualizations.qmd
+        text: Análisis y visualización
 
 format:
   html:

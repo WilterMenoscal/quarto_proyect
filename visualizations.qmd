@@ -1,0 +1,315 @@
+---
+title: "Análisis y visualización"
+page-layout: full
+format:
+  html:
+    toc: false
+    code-fold: true
+---
+```{python}
+import pandas as pd
+import altair as alt
+
+alt.data_transformers.disable_max_rows()
+df = pd.read_csv("datos/contratacion_directa_limpia.csv")
+
+df["fecha"] = pd.to_datetime(df["fecha"])
+df["year"] = df["year"].astype(int)
+df.head(5)
+```
+## Pregunta 1
+
+- ¿Cómo ha evolucionado el monto total de contratación directa en Ecuador a lo largo del tiempo?
+
+```{python}
+# Gasto total por año
+gasto_anual = (
+    df.groupby("year", as_index=False)
+      .agg(
+          monto_total=("value_amount", "sum"),
+          numero_procesos=("value_amount", "count")
+      )
+)
+
+gasto_anual["tipo"] = gasto_anual["year"].apply(
+    lambda x: "Dato parcial" if x == 2025 else "Dato completo"
+)
+
+# Top 10 instituciones por año
+top_por_anio = (
+    df.groupby(["year", "procuringEntity_name"], as_index=False)
+      .agg(monto_institucion=("value_amount", "sum"))
+      .sort_values(["year", "monto_institucion"], ascending=[True, False])
+)
+
+# Ranking dentro de cada año
+top_por_anio["rank"] = (
+    top_por_anio.groupby("year")["monto_institucion"]
+    .rank(method="first", ascending=False)
+)
+
+# Mantener solo top 10 por cada año
+top_por_anio = top_por_anio[top_por_anio["rank"] <= 10].copy()
+
+# Convertir ranking a entero
+top_por_anio["rank_int"] = top_por_anio["rank"].astype(int)
+
+# Crear etiqueta corta, pero única
+# El ranking evita que dos instituciones distintas se mezclen si el texto cortado es parecido
+top_por_anio["institucion_label"] = (
+    top_por_anio["rank_int"].astype(str).str.zfill(2)
+    + ". "
+    + top_por_anio["procuringEntity_name"].str.slice(0, 55)
+)
+
+# Selección por click en el año
+select_year = alt.selection_point(
+    fields=["year"],
+    on="click",
+    empty="none"
+)
+
+# Gráfico 1: evolución anual del monto total
+linea = alt.Chart(gasto_anual).mark_line(
+    strokeWidth=3,
+    color="#2E86AB"
+).encode(
+    x=alt.X(
+        "year:O",
+        title="Año",
+        axis=alt.Axis(labelAngle=0)
+    ),
+    y=alt.Y(
+        "monto_total:Q",
+        title="Monto total contratado (USD)",
+        axis=alt.Axis(format="~s")
+    )
+)
+
+puntos = alt.Chart(gasto_anual).mark_circle(
+    size=120
+).encode(
+    x=alt.X("year:O", title="Año"),
+    y=alt.Y("monto_total:Q"),
+    color=alt.condition(
+        select_year,
+        alt.value("#E76F51"),
+        alt.value("#2E86AB")
+    ),
+    tooltip=[
+        alt.Tooltip("year:O", title="Año"),
+        alt.Tooltip("monto_total:Q", title="Monto total", format=",.2f"),
+        alt.Tooltip("numero_procesos:Q", title="Número de procesos"),
+        alt.Tooltip("tipo:N", title="Observación")
+    ]
+).add_params(
+    select_year
+)
+
+chart_evolucion = (linea + puntos).properties(
+    title="Evolución del monto total de contratación directa",
+    width=850,
+    height=380
+)
+
+# Título dinámico para el gráfico inferior
+titulo_dinamico = alt.Chart(top_por_anio).transform_filter(
+    select_year
+).transform_aggregate(
+    year_sel="max(year)"
+).transform_calculate(
+    titulo="'Top 10 instituciones del ' + toString(datum.year_sel)"
+).mark_text(
+    align="left",
+    fontSize=16,
+    fontWeight="bold"
+).encode(
+    text="titulo:N"
+).properties(
+    width=850,
+    height=30
+)
+
+# Gráfico 2: top 10 instituciones del año seleccionado
+chart_top_anio = alt.Chart(top_por_anio).mark_bar(
+    color="#4C78A8"
+).encode(
+    x=alt.X(
+        "monto_institucion:Q",
+        title="Monto contratado (USD)",
+        axis=alt.Axis(format="~s")
+    ),
+    y=alt.Y(
+        "institucion_label:N",
+        sort=alt.SortField("rank", order="ascending"),
+        title=None,
+        axis=alt.Axis(labelFontSize=11)
+    ),
+    tooltip=[
+        alt.Tooltip("year:O", title="Año"),
+        alt.Tooltip("procuringEntity_name:N", title="Institución completa"),
+        alt.Tooltip("monto_institucion:Q", title="Monto", format=",.2f"),
+        alt.Tooltip("rank_int:Q", title="Ranking")
+    ]
+).transform_filter(
+    select_year
+).properties(
+    width=850,
+    height=500
+)
+
+# Visualización final
+alt.vconcat(
+    chart_evolucion,
+    titulo_dinamico,
+    chart_top_anio,
+    spacing=20
+).configure(
+    padding={"left": 150, "top": 20, "right": 20, "bottom": 20}
+)
+```
+
+### Interpretación
+
+El gráfico muestra la evolución anual del monto total contratado mediante contratación directa en Ecuador. Se observa un valor muy alto en 2015, seguido de una caída marcada en 2016 y 2017. A partir de 2018, el monto se mantiene relativamente estable, con valores cercanos entre 50 y 65 millones de dólares.
+
+También se observa un incremento importante en 2022 y un nuevo pico en 2024. En cambio, el año 2025 presenta una caída considerable, pero este resultado debe interpretarse con cuidado porque corresponde a un año con información parcial.
+
+### ¿Cómo responde el gráfico a la pregunta?
+
+La visualización permite responder la pregunta porque muestra claramente cómo cambia el monto total contratado a lo largo del tiempo. Al usar una línea temporal, es posible identificar aumentos, caídas y periodos de estabilidad en la contratación directa.
+
+El gráfico cumple su propósito porque facilita comparar los años entre sí y reconocer patrones generales del gasto público bajo esta modalidad. Además, el uso de puntos sobre la línea ayuda a identificar cada año específico y permite destacar visualmente años particulares, como 2025, que no debe compararse de forma directa con años completos.
+
+## Pregunta 2
+
+- ¿Qué instituciones concentran la mayor parte del monto contratado mediante contratación directa?
+
+```{python}
+# Top 20 instituciones por monto total acumulado
+top_instituciones = (
+    df.groupby("procuringEntity_name", as_index=False)
+      .agg(
+          monto_total=("value_amount", "sum"),
+          numero_procesos=("value_amount", "count")
+      )
+      .sort_values("monto_total", ascending=False)
+      .head(20)
+)
+
+# Filtrar solo esas instituciones
+df_top = df[df["procuringEntity_name"].isin(top_instituciones["procuringEntity_name"])]
+
+# Monto por institución y año
+top_anual = (
+    df_top.groupby(["procuringEntity_name", "year"], as_index=False)
+          .agg(monto_anual=("value_amount", "sum"))
+)
+
+# Total por institución
+total_inst = (
+    df_top.groupby("procuringEntity_name", as_index=False)
+          .agg(monto_total=("value_amount", "sum"))
+)
+
+top_anual = top_anual.merge(total_inst, on="procuringEntity_name")
+
+# Porcentaje del total general
+total_general = df["value_amount"].sum()
+top_instituciones["porcentaje"] = top_instituciones["monto_total"] / total_general * 100
+
+porcentaje_total = top_instituciones["porcentaje"].sum()
+num_inst = df["procuringEntity_name"].nunique()
+
+print(f"Porcentaje total representado por el top 20: {porcentaje_total:.2f}%")
+print(f"Número total de instituciones: {num_inst}")
+
+# Gráfico apilado por año
+chart_top_instituciones = alt.Chart(top_anual).mark_bar().encode(
+    x=alt.X(
+        "monto_anual:Q",
+        title="Monto contratado (USD)"
+    ),
+    y=alt.Y(
+        "procuringEntity_name:N",
+        sort=alt.SortField("monto_total", order="descending"),
+        title="Institución pública"
+    ),
+    color=alt.Color(
+        "year:O",
+        title="Año"
+    ),
+    tooltip=[
+        alt.Tooltip("procuringEntity_name:N", title="Institución"),
+        alt.Tooltip("year:O", title="Año"),
+        alt.Tooltip("monto_anual:Q", title="Monto anual", format=",.2f"),
+        alt.Tooltip("monto_total:Q", title="Monto total institución", format=",.2f")
+    ]
+).properties(
+    title="Top 20 instituciones con mayor monto contratado, desagregado por año",
+    width=850,
+    height=600
+)
+
+chart_top_instituciones
+
+```
+
+### Interpretación
+
+El gráfico muestra las 20 instituciones públicas con mayor monto acumulado en procesos de contratación directa durante el periodo analizado. Cada barra representa el monto total contratado por una institución, mientras que los segmentos de color muestran la contribución de cada año.
+
+Se observa que algunas entidades concentran montos significativamente más altos que el resto, especialmente instituciones vinculadas al sector eléctrico, gobiernos municipales y empresas públicas. Esto sugiere que la contratación directa no se distribuye de forma completamente uniforme entre todas las instituciones, sino que existe una mayor concentración en ciertos actores públicos.
+
+Además, al estar desagregado por año, el gráfico permite identificar si el monto de una institución se acumuló de forma constante en el tiempo o si se concentró en años específicos.
+
+### ¿Cómo responde el gráfico a la pregunta?
+
+La visualización responde la pregunta porque ordena las instituciones según el monto total contratado, permitiendo identificar rápidamente cuáles concentran la mayor parte de la contratación directa.
+
+El uso de barras horizontales facilita comparar instituciones con nombres largos, mientras que la segmentación por año añade una segunda capa de análisis: no solo muestra cuánto contrató cada institución, sino también cuándo se concentraron esos montos.
+
+Por esta razón, el gráfico cumple su propósito al mostrar tanto la concentración institucional como la evolución temporal del monto contratado dentro de cada entidad.
+
+## Pregunta 3
+
+- ¿Cuál es la distribución de los montos de contratación directa en el periodo analizado?
+
+```{python}
+chart_dist = alt.Chart(df).mark_bar().encode(
+    x=alt.X(
+        "value_amount:Q",
+        bin=alt.Bin(maxbins=40),
+        title="Monto de contratación (USD)"
+    ),
+    y=alt.Y("count()", title="Número de procesos"),
+    color=alt.Color(
+        "count():Q",
+        scale=alt.Scale(scheme="blues"),
+        legend=None 
+    ),
+    tooltip=[alt.Tooltip("count()", title="Número de procesos")]
+).properties(
+    title="Distribución de montos de contratación directa",
+    width=750,
+    height=400
+)
+
+chart_dist
+```
+
+### Interpretación
+
+El histograma muestra la distribución de los montos registrados en los procesos de contratación directa. Se observa que la mayor cantidad de procesos se concentra en montos bajos, especialmente en los primeros rangos del eje horizontal.
+
+A medida que aumenta el monto contratado, el número de procesos disminuye progresivamente. Esto indica que los procesos de mayor valor son menos frecuentes, mientras que los procesos de menor y mediano monto son mucho más comunes.
+
+La distribución presenta una asimetría hacia la derecha, característica de datos económicos: muchos procesos tienen montos relativamente bajos y pocos procesos alcanzan valores altos.
+
+### ¿Cómo responde el gráfico a la pregunta?
+
+El gráfico responde la pregunta porque permite observar la forma en que se distribuyen los montos de contratación directa durante el periodo analizado.
+
+Al agrupar los procesos por rangos de monto, el histograma muestra que la contratación directa se concentra principalmente en valores bajos y medios, mientras que los montos altos aparecen con menor frecuencia.
+
+Esta visualización cumple su propósito porque facilita identificar patrones generales en la estructura de los montos contratados, sin necesidad de revisar cada proceso individualmente.

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>My Quarto Project</title>
+<title>Análisis de la Contratación Directa en el Sector Público Ecuatoriano (2015–2025) – Final Project</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -82,7 +82,7 @@ ul.task-list li input[type="checkbox"] {
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">My Quarto Project</span>
+    <span class="navbar-title">Final Project</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -96,8 +96,12 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./viz.html"> 
-<span class="menu-text">Visualizacion</span></a>
+    <a class="nav-link" href="./data_cleaning.html"> 
+<span class="menu-text">Limpieza y preparación de los datos</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./visualizations.html"> 
+<span class="menu-text">Análisis y visualización</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -116,7 +120,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">My Quarto Project</h1>
+<h1 class="title">Análisis de la Contratación Directa en el Sector Público Ecuatoriano (2015–2025)</h1>
 </div>
 
 
@@ -133,24 +137,44 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="introducción" class="level1">
-<h1>Introducción</h1>
+<section id="contexto-del-problema" class="level1">
+<h1>Contexto del problema</h1>
+<p>El análisis de la contratación pública es fundamental para comprender cómo se gestionan los recursos del Estado. En Ecuador, uno de los mecanismos utilizados es la contratación directa, el cual permite a las entidades públicas realizar adquisiciones sin procesos competitivos amplios.</p>
+<p>Este tipo de contratación, si bien puede ser eficiente en ciertos contextos, también genera interrogantes sobre la transparencia, la concentración del gasto y el nivel de competencia entre proveedores.</p>
 </section>
-<section id="objetivo" class="level1">
-<h1>Objetivo</h1>
-<section id="objetivo-general" class="level2">
-<h2 class="anchored" data-anchor-id="objetivo-general">Objetivo general</h2>
+<section id="motivación-del-análisis" class="level1">
+<h1>Motivación del análisis</h1>
+<p>El presente proyecto busca analizar el comportamiento de la contratación directa en el sector público ecuatoriano, con el fin de identificar patrones en el gasto, distribución institucional y evolución temporal.</p>
+<p>La motivación principal es comprender cómo se utilizan los recursos públicos bajo esta modalidad y detectar posibles concentraciones o tendencias relevantes que puedan ser comunicadas de forma clara a un público general mediante visualizaciones.</p>
 </section>
-<section id="objetivos-específicos" class="level2">
-<h2 class="anchored" data-anchor-id="objetivos-específicos">Objetivos específicos</h2>
+<section id="pregunta-de-analisis" class="level1">
+<h1>Pregunta de analisis</h1>
+<section id="cómo-ha-evolucionado-el-monto-total-de-contratación-directa-en-ecuador-a-lo-largo-del-tiempo" class="level2">
+<h2 class="anchored" data-anchor-id="cómo-ha-evolucionado-el-monto-total-de-contratación-directa-en-ecuador-a-lo-largo-del-tiempo">- ¿Cómo ha evolucionado el monto total de contratación directa en Ecuador a lo largo del tiempo?</h2>
+</section>
+<section id="qué-instituciones-concentran-la-mayor-parte-del-monto-contratado-mediante-contratación-directa" class="level2">
+<h2 class="anchored" data-anchor-id="qué-instituciones-concentran-la-mayor-parte-del-monto-contratado-mediante-contratación-directa">- ¿Qué instituciones concentran la mayor parte del monto contratado mediante contratación directa?</h2>
+</section>
+<section id="cuál-es-la-distribución-de-los-montos-de-contratación-directa-en-el-periodo-analizado" class="level2">
+<h2 class="anchored" data-anchor-id="cuál-es-la-distribución-de-los-montos-de-contratación-directa-en-el-periodo-analizado">- ¿Cuál es la distribución de los montos de contratación directa en el periodo analizado?</h2>
+</section>
+</section>
+<section id="descripción-del-dataset" class="level1">
+<h1>Descripción del dataset</h1>
+<p>El dataset utilizado proviene del sistema de contratación pública del Ecuador (SERCOP) y contiene información sobre procesos de contratación directa.</p>
+<p>Incluye variables como el monto de contratación, fecha de inicio del proceso, entidad contratante, estado del proceso y número de oferentes.</p>
+<p>Los datos abarcan el periodo comprendido entre 2015 y 2025, permitiendo realizar un análisis longitudinal del comportamiento de esta modalidad de contratación. Es importante señalar que el año 2025 presenta información parcial al momento del análisis.</p>
+<p><a href="https://datosabiertos.compraspublicas.gob.ec/PLATAFORMA/datos-abiertos">link de los datos</a></p>
+</section>
+<section id="navegación-del-proyecto" class="level1">
+<h1>Navegación del proyecto</h1>
+<p>El proyecto se encuentra organizado en las siguientes secciones:</p>
 <ul>
-<li>first</li>
-<li>second</li>
-<li>third</li>
+<li><a href="./data_cleaning.html">Limpieza y preparación de los datos</a></li>
+<li><a href="./visualizations.html">Análisis y visualización</a></li>
 </ul>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->

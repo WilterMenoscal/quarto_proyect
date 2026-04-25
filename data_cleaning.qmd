@@ -1,0 +1,97 @@
+---
+title: "Limpieza y preparación de los datos"
+---
+
+# Merge de datos
+
+En esta sección se muestra el proceso de merge de los datos, para esto se importan las librerías necesarias y se leen los archivos csv que contienen los datos, luego se concatenan en un solo dataframe y se muestra la información del mismo.
+```{python}
+import pandas as pd
+import glob
+
+files = glob.glob("datos/tender_*.csv")
+
+df = pd.concat([pd.read_csv(f) for f in files], ignore_index=True)
+df.head(5)
+```
+
+## Información del dataframe
+```{python}
+df.info()
+```
+
+## Selección de columnas relevantes
+Se seleccionaron las siguientes columnas por su relevancia para el análisis:
+
+- tenderPeriod_startDate: permite identificar el momento en que inicia cada proceso, lo cual es fundamental para realizar análisis temporal y estudiar la evolución de la contratación a lo largo de los años.
+
+- value_amount: representa el monto económico de cada proceso, siendo la variable principal para analizar el gasto público.
+
+- procuringEntity_name: identifica la institución que realiza la contratación, lo que permite analizar qué entidades concentran mayor actividad o gasto.
+
+- procurementMethodDetails: describe el tipo de contratación, útil para validar que los registros corresponden a contratación directa y mantener consistencia en el análisis.
+
+- status: indica el estado del proceso (por ejemplo, activo o completado), lo que permite filtrar registros válidos y evitar incluir procesos incompletos o cancelados.
+
+- numberOfTenderers: muestra el número de oferentes en cada proceso, permitiendo analizar el nivel de competencia dentro de la contratación pública.
+```{python}
+    df_clean = df[[
+        "tenderPeriod_startDate",
+        "value_amount",
+        "procuringEntity_name",
+        "procurementMethodDetails",
+        "status",
+        "numberOfTenderers"
+    ]].copy()
+    df_clean.head(5)
+```
+
+## Validar fechas
+```{python}
+df_clean["fecha"] = pd.to_datetime(df_clean["tenderPeriod_startDate"], errors="coerce")
+df_clean["year"] = df_clean["fecha"].dt.year
+df_clean["year"].value_counts().sort_index()
+```
+
+
+## Revisar valores nulos
+```{python} 
+df_clean.isnull().sum()
+``` 
+
+## Revisar valores únicos en columnas categóricas, para validar que no existan valores atípicos o inconsistentes.
+
+### Value amount 
+```{python}
+df_clean["value_amount"].describe()
+```
+
+### Fecha
+```{python}
+print(df_clean["fecha"].isna().sum())
+print(df_clean["fecha"].min(), df_clean["fecha"].max())
+```
+
+### Institución
+```{python}
+print(df_clean["procuringEntity_name"].nunique())
+print(df_clean["procuringEntity_name"].value_counts().head(10))
+```
+
+### Tipo de contratación 
+```{python}
+df_clean["procurementMethodDetails"].value_counts()
+```
+
+
+### Estado del proceso
+```{python}
+df_clean["status"].value_counts()
+```
+
+### Guardar el dataframe limpio
+```{python}
+df_clean.to_csv("datos/contratacion_directa_limpia.csv", index=False)
+```
+
+El dataset presenta una alta calidad de datos, sin valores nulos en las variables seleccionadas. Las fechas se encuentran correctamente estructuradas y cubren un periodo amplio (2015–2025), aunque el último año contiene información parcial. Se identificó una alta diversidad de entidades contratantes, con concentración del gasto en un grupo reducido. Además, todos los registros corresponden a contratación directa, lo que garantiza consistencia en el análisis. Finalmente, se decidió trabajar únicamente con procesos completados para asegurar la validez de los resultados.
